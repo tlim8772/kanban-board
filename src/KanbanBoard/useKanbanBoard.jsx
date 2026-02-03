@@ -19,7 +19,6 @@ export function useKanbanBoard() {
     const [tasks, setTasks] = useState([]);
     const [cols, setCols] = useState([]);
 
-    const taskDraggedRef = useRef();
     const [taskDragged, setTaskDragged] = useState(null);
 
     function addTask(text, colId) {
@@ -60,12 +59,18 @@ export function useKanbanBoard() {
         ev.preventDefault();
         
         if (task.isPlaceholder || task.id === taskDragged?.id) return;
-        const realTasks = tasks.filter(t => !t.isPlaceholder);
-        const idx = realTasks.findIndex(t => t.id === task.id);
+        
+        // when task is right below the dragged task don't do anything because it won't change anything.
+        const myTasks = tasks.filter(t => t.colId === task.colId);
+        const myIdx = myTasks.findIndex(t => t.id === task.id);
+        const taskDraggedIdx = myTasks.findIndex(t => t.id === taskDragged?.id);
+        if (taskDraggedIdx + 1 === myIdx) return;
+
+        const idx = tasks.findIndex(t => t.id === task.id);
         setTasks([
-          ...realTasks.slice(0, idx),
+          ...tasks.slice(0, idx),
           makePlaceholder(task.colId),
-          ...realTasks.slice(idx)
+          ...tasks.slice(idx)
         ]);
       }
     }
@@ -81,6 +86,19 @@ export function useKanbanBoard() {
       }
     }
 
+    function colTaskDragEnter(col, colDomElem) {
+      return (ev) => {
+        const myTasks = tasks.filter(t => t.colId === col.id);
+        if (myTasks.length > 0 && myTasks.at(-1).id === taskDragged?.id) return;
+        if (myTasks.length > 0 && myTasks.at(-1).isPlaceholder) return;
+        
+        const { bottom } = colDomElem?.getBoundingClientRect();
+        if (ev.clientY < bottom - 40) return;
+        console.log('col drag enter');
+        setTasks([...tasks, makePlaceholder(col.id)]);
+      }
+    }
+
     return {
       tasks,
       addTask,
@@ -93,5 +111,6 @@ export function useKanbanBoard() {
       taskDragEnd,
       taskDragEnter,
       taskDragLeave,
+      colTaskDragEnter,
     }
 }

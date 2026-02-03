@@ -20,28 +20,35 @@ function Card({ task }) {
   )
 }
 
-function PlaceHolderCard() {
+function PlaceHolderCard({ task }) {
+  const { taskDragLeave } = useContext(KanbanContext);
   return (
-    <div className={styles.placeholderCard}>&nbsp;</div>
+    <div 
+      className={styles.placeholderCard}
+      onDragLeave={taskDragLeave(task)}
+    >&nbsp;</div>
   )
 }
 
 function Col({ col, tasks }) {
-  const { addTask} = useContext(KanbanContext);
+  const { addTask, colTaskDragEnter } = useContext(KanbanContext);
   const [input, setInput] = useState('');
   const dialogRef = useRef();
+  const ref = useRef();
 
   return (
     <>
       <div 
+        ref={ref}
         className={styles.column}
+        onDragEnter={colTaskDragEnter(col, ref.current)}
       >
         <div style={{marginBottom: '12px'}}>
           {col.text}&nbsp;
           <button onClick={() => dialogRef.current?.showModal()}>+</button>
         </div>
         {tasks.map(t => {
-          return (t.isPlaceholder) ? <PlaceHolderCard key={t.id} /> : <Card key={t.id} task={t} />
+          return (t.isPlaceholder) ? <PlaceHolderCard key={t.id} task={t} /> : <Card key={t.id} task={t} />
         })}
       </div>
       <dialog ref={dialogRef} closedby='any'>
