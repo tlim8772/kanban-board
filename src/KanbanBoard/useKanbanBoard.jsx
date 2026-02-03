@@ -64,7 +64,7 @@ export function useKanbanBoard() {
         const myTasks = tasks.filter(t => t.colId === task.colId);
         const myIdx = myTasks.findIndex(t => t.id === task.id);
         const taskDraggedIdx = myTasks.findIndex(t => t.id === taskDragged?.id);
-        if (taskDraggedIdx + 1 === myIdx) return;
+        if (taskDraggedIdx != -1 && taskDraggedIdx + 1 === myIdx) return;
 
         const idx = tasks.findIndex(t => t.id === task.id);
         setTasks([
@@ -81,19 +81,19 @@ export function useKanbanBoard() {
     // which I dont want.
     function taskDragLeave(task) {
       return (ev) => {
-        if (!task.isPlaceholder || task.id === taskDragged?.id) return;
+        if (!task.isPlaceholder) return;
         setTasks(tasks.filter(t => !t.isPlaceholder));
       }
     }
 
-    function colTaskDragEnter(col, colDomElem) {
+    function colTaskDragOver(col, colDomElem) {
       return (ev) => {
         const myTasks = tasks.filter(t => t.colId === col.id);
         if (myTasks.length > 0 && myTasks.at(-1).id === taskDragged?.id) return;
         if (myTasks.length > 0 && myTasks.at(-1).isPlaceholder) return;
         
         const { bottom } = colDomElem?.getBoundingClientRect();
-        if (ev.clientY < bottom - 40) return;
+        if (ev.clientY < bottom - 32) return;
         console.log('col drag enter');
         setTasks([...tasks, makePlaceholder(col.id)]);
       }
@@ -111,6 +111,6 @@ export function useKanbanBoard() {
       taskDragEnd,
       taskDragEnter,
       taskDragLeave,
-      colTaskDragEnter,
+      colTaskDragOver,
     }
 }
