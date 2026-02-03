@@ -1,16 +1,17 @@
-import { useContext, useState, useRef } from 'react';
+import { useContext, useState, useRef, useEffect } from 'react';
 import styles from './KanbanBoard.module.css';
 import { KanbanContext, useKanbanBoard } from './useKanbanBoard';
 
 function Card({ task }) {
-  const { taskDragStart, taskDragEnd, taskDragEnter, taskDragLeave } = useContext(KanbanContext);
-  
+  const { taskDragged, taskDragStart, taskDragEnd, taskDragEnter, taskDragLeave } = useContext(KanbanContext);
+  const isDragged = task == taskDragged;
   return (
     <div 
-      className={styles.card} 
+      className={`${styles.card} ${isDragged && styles.isDragged}`} 
       draggable='true'
       onDragStart={taskDragStart(task)}
       onDragEnd={taskDragEnd()}
+      onDragOver={ev => ev.preventDefault()}
       onDragEnter={taskDragEnter(task)}
       onDragLeave={taskDragLeave(task)}
     >
@@ -21,18 +22,21 @@ function Card({ task }) {
 
 function PlaceHolderCard() {
   return (
-    <div className={styles.placeholderCard}>+</div>
+    <div className={styles.placeholderCard}>&nbsp;</div>
   )
 }
 
 function Col({ col, tasks }) {
-  const { addTask } = useContext(KanbanContext);
+  const { addTask, taskDragEnterColumn } = useContext(KanbanContext);
   const [input, setInput] = useState('');
   const dialogRef = useRef();
 
   return (
     <>
-      <div className={styles.column}>
+      <div 
+        className={styles.column}
+        onDragEnter={taskDragEnterColumn(col.id)}
+      >
         <div style={{marginBottom: '12px'}}>
           {col.text}&nbsp;
           <button onClick={() => dialogRef.current?.showModal()}>+</button>

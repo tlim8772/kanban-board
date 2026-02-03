@@ -9,6 +9,10 @@
     padding: 8px;
 }
 
+.isDragged {
+    opacity: 0.5;
+}
+
 .placeholderCard {
     width: 200px;
     min-height: 64px;
@@ -17,7 +21,7 @@
     border: 1px black;
     text-align: center;
     border: 1px solid black;
-    opacity: 25%;
+    opacity: 0.25;
 }
 
 .column {

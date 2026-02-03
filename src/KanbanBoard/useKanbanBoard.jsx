@@ -20,6 +20,7 @@ export function useKanbanBoard() {
     const [cols, setCols] = useState([]);
 
     const taskDraggedRef = useRef();
+    const [taskDragged, setTaskDragged] = useState(null);
 
     function addTask(text, colId) {
       setTasks([...tasks,
@@ -44,13 +45,15 @@ export function useKanbanBoard() {
     function taskDragStart(task) {
       return (ev) => {
         taskDraggedRef.current = task;
+        setTaskDragged(task);
       }
     }
 
     function taskDragEnd() {
       return () => {
         taskDraggedRef.current = null;
-        //setTasks(tasks.filter(t => !t.isPlaceholder));
+        setTaskDragged(null);
+        setTasks(tasks.filter(t => !t.isPlaceholder));
       }
     }
 
@@ -59,22 +62,30 @@ export function useKanbanBoard() {
         ev.preventDefault();
         
         if (task.isPlaceholder || task.id === taskDraggedRef.current?.id) return;
-        const idx = tasks.findIndex(t => t.id === task.id);
-        /*setTasks([
-          ...tasks.slice(0, idx),
+        const realTasks = tasks.filter(t => !t.isPlaceholder);
+        const idx = realTasks.findIndex(t => t.id === task.id);
+        setTasks([
+          ...realTasks.slice(0, idx),
           makePlaceholder(task.colId),
-          ...tasks.slice(idx)
-        ]);*/
-        console.log('drag enter', idx);
+          ...realTasks.slice(idx)
+        ]);
       }
     }
 
-    // cannot affect task being dragged and placeholder
+    // only the placeholder calls this.
+    // becase when I drag into a task, the placeholder take its place as the task is moved down.
+    // if I call this on the real task, it will remove the placeholder as the task gets push down,
+    // which I dont want.
     function taskDragLeave(task) {
       return (ev) => {
-        if (task.isPlaceholder || task.id === taskDraggedRef.current?.id) return;
-        //setTasks(tasks.filter(t => !t.isPlaceholder));
-        console.log('drag leave');
+        if (!task.isPlaceholder || task.id === taskDraggedRef.current?.id) return;
+        setTasks(tasks.filter(t => !t.isPlaceholder));
+      }
+    }
+
+    function taskDragEnterColumn(colId) {
+      return (ev) => {
+        console.log('column drag enter');
       }
     }
  
@@ -85,9 +96,12 @@ export function useKanbanBoard() {
       cols,
       addCol,
 
+      taskDraggedRef,
+      taskDragged,
       taskDragStart,
       taskDragEnd,
       taskDragEnter,
       taskDragLeave,
+      taskDragEnterColumn,
     }
 }
