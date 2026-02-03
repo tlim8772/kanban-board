@@ -1,0 +1,54 @@
+.card {
+    width: 200px;
+    border-radius: 8px;
+    border: 1px solid black;
+    text-align: center;
+}
+
+.column {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 8px;
+    min-width: 216px;
+    min-height: 400px;
+}
+
+.main {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100vw;
+    min-height: 100vh;
+}
+
+.board {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    gap: 12px;
+}
+
+.addColBtn {
+    position: absolute;
+    bottom: 32px;
+    right: 32px;
+}
+
+.addForm {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+dialog {
+    border: 1px solid black;
+    border-radius: 8px;
+    padding: 12px;
+}
