@@ -1,8 +1,23 @@
 .card {
     width: 200px;
+    min-height: 64px;
     border-radius: 8px;
     border: 1px solid black;
     text-align: center;
+    white-space: normal;
+    overflow-wrap: break-word;
+    padding: 8px;
+}
+
+.placeholderCard {
+    width: 200px;
+    min-height: 64px;
+    border-radius: 8px;
+    padding: 8px;
+    border: 1px black;
+    text-align: center;
+    border: 1px solid black;
+    opacity: 25%;
 }
 
 .column {
@@ -31,7 +46,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    gap: 12px;
+    gap: 24px;
 }
 
 .addColBtn {

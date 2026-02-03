@@ -3,10 +3,25 @@ import styles from './KanbanBoard.module.css';
 import { KanbanContext, useKanbanBoard } from './useKanbanBoard';
 
 function Card({ task }) {
+  const { taskDragStart, taskDragEnd, taskDragEnter, taskDragLeave } = useContext(KanbanContext);
+  
   return (
-    <div className={styles.card}>
+    <div 
+      className={styles.card} 
+      draggable='true'
+      onDragStart={taskDragStart(task)}
+      onDragEnd={taskDragEnd()}
+      onDragEnter={taskDragEnter(task)}
+      onDragLeave={taskDragLeave(task)}
+    >
       {task.text}
     </div>
+  )
+}
+
+function PlaceHolderCard() {
+  return (
+    <div className={styles.placeholderCard}>+</div>
   )
 }
 
@@ -14,7 +29,7 @@ function Col({ col, tasks }) {
   const { addTask } = useContext(KanbanContext);
   const [input, setInput] = useState('');
   const dialogRef = useRef();
-  
+
   return (
     <>
       <div className={styles.column}>
@@ -22,7 +37,9 @@ function Col({ col, tasks }) {
           {col.text}&nbsp;
           <button onClick={() => dialogRef.current?.showModal()}>+</button>
         </div>
-        {tasks.map(t => <Card key={t.id} task={t} />)}
+        {tasks.map(t => {
+          return (t.isPlaceholder) ? <PlaceHolderCard key={t.id} /> : <Card key={t.id} task={t} />
+        })}
       </div>
       <dialog ref={dialogRef} closedby='any'>
         <form
