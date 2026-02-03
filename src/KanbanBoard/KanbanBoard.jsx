@@ -21,11 +21,13 @@ function Card({ task }) {
 }
 
 function PlaceHolderCard({ task }) {
-  const { taskDragLeave } = useContext(KanbanContext);
+  const { taskDragLeave, taskDragDrop } = useContext(KanbanContext);
   return (
     <div 
       className={styles.placeholderCard}
       onDragLeave={taskDragLeave(task)}
+      onDragOver={e => e.preventDefault()}
+      onDrop={taskDragDrop(task)}
     >&nbsp;</div>
   )
 }

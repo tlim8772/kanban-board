@@ -86,6 +86,17 @@ export function useKanbanBoard() {
       }
     }
 
+    function taskDragDrop(task) {
+      return (ev) => {
+        if (!task.isPlaceholder) return;
+        const newTasks = tasks.filter(t => t.id !== taskDragged?.id);
+        task.id = taskDragged?.id;
+        task.text = taskDragged?.text;
+        task.isPlaceholder = false;
+        setTasks(newTasks);
+      }
+    }
+
     function colTaskDragOver(col, colDomElem) {
       return (ev) => {
         const myTasks = tasks.filter(t => t.colId === col.id);
@@ -112,5 +123,6 @@ export function useKanbanBoard() {
       taskDragEnter,
       taskDragLeave,
       colTaskDragOver,
+      taskDragDrop,
     }
 }
