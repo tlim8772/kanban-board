@@ -58,7 +58,7 @@ export function useKanbanBoard() {
       return (ev) => {
         ev.preventDefault();
         
-        if (task.isPlaceholder || task.id === taskDragged?.id) return;
+        if (!taskDragged || task.isPlaceholder || task.id === taskDragged?.id) return;
         
         // when task is right below the dragged task don't do anything because it won't change anything.
         const myTasks = tasks.filter(t => t.colId === task.colId);
@@ -99,14 +99,19 @@ export function useKanbanBoard() {
 
     function colTaskDragOver(col, colDomElem) {
       return (ev) => {
-        const myTasks = tasks.filter(t => t.colId === col.id);
-        if (myTasks.length > 0 && myTasks.at(-1).id === taskDragged?.id) return;
-        if (myTasks.length > 0 && myTasks.at(-1).isPlaceholder) return;
-        
-        const { bottom } = colDomElem?.getBoundingClientRect();
-        if (ev.clientY < bottom - 32) return;
-        console.log('col drag enter');
-        setTasks([...tasks, makePlaceholder(col.id)]);
+        if (taskDragged) {
+           const myTasks = tasks.filter(t => t.colId === col.id);
+          if (myTasks.length > 0 && myTasks.at(-1).id === taskDragged?.id) return;
+          if (myTasks.length > 0 && myTasks.at(-1).isPlaceholder) return;
+          
+          const { bottom } = colDomElem?.getBoundingClientRect();
+          if (ev.clientY < bottom - 32) return;
+          console.log('col drag enter');
+          setTasks([...tasks, makePlaceholder(col.id)]);
+        } else {
+          
+        }
+       
       }
     }
 

@@ -45,7 +45,7 @@ function Col({ col, tasks }) {
         className={styles.column}
         onDragOver={colTaskDragOver(col, ref.current)}
       >
-        <div style={{marginBottom: '12px'}}>
+        <div style={{marginBottom: '12px', cursor: 'grab'}}>
           {col.text}&nbsp;
           <button onClick={() => dialogRef.current?.showModal()}>+</button>
         </div>
