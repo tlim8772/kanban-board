@@ -27,7 +27,7 @@ function PlaceHolderCard() {
 }
 
 function Col({ col, tasks }) {
-  const { addTask, taskDragEnterColumn } = useContext(KanbanContext);
+  const { addTask} = useContext(KanbanContext);
   const [input, setInput] = useState('');
   const dialogRef = useRef();
 
@@ -35,7 +35,6 @@ function Col({ col, tasks }) {
     <>
       <div 
         className={styles.column}
-        onDragEnter={taskDragEnterColumn(col.id)}
       >
         <div style={{marginBottom: '12px'}}>
           {col.text}&nbsp;

@@ -44,14 +44,12 @@ export function useKanbanBoard() {
 
     function taskDragStart(task) {
       return (ev) => {
-        taskDraggedRef.current = task;
         setTaskDragged(task);
       }
     }
 
     function taskDragEnd() {
       return () => {
-        taskDraggedRef.current = null;
         setTaskDragged(null);
         setTasks(tasks.filter(t => !t.isPlaceholder));
       }
@@ -61,7 +59,7 @@ export function useKanbanBoard() {
       return (ev) => {
         ev.preventDefault();
         
-        if (task.isPlaceholder || task.id === taskDraggedRef.current?.id) return;
+        if (task.isPlaceholder || task.id === taskDragged?.id) return;
         const realTasks = tasks.filter(t => !t.isPlaceholder);
         const idx = realTasks.findIndex(t => t.id === task.id);
         setTasks([
@@ -78,17 +76,11 @@ export function useKanbanBoard() {
     // which I dont want.
     function taskDragLeave(task) {
       return (ev) => {
-        if (!task.isPlaceholder || task.id === taskDraggedRef.current?.id) return;
+        if (!task.isPlaceholder || task.id === taskDragged?.id) return;
         setTasks(tasks.filter(t => !t.isPlaceholder));
       }
     }
 
-    function taskDragEnterColumn(colId) {
-      return (ev) => {
-        console.log('column drag enter');
-      }
-    }
- 
     return {
       tasks,
       addTask,
@@ -96,12 +88,10 @@ export function useKanbanBoard() {
       cols,
       addCol,
 
-      taskDraggedRef,
       taskDragged,
       taskDragStart,
       taskDragEnd,
       taskDragEnter,
       taskDragLeave,
-      taskDragEnterColumn,
     }
 }
