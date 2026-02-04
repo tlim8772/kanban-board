@@ -13,11 +13,21 @@ function makePlaceholder(colId) {
   }
 }
 
+const cs = Array(2).fill(1).map((_, i) => { return {id: genId(), text: `col${i}`}});
+const ts = Array(10).fill(1).map((_, i) => {
+  return {
+    id: genId(),
+    colId: cs[Math.floor(Math.random() * 2)].id,
+    text: `task${i}`,
+    isPlaceholder: false,
+  }
+})
+
 export const KanbanContext = createContext();
 
 export function useKanbanBoard() {
-    const [tasks, setTasks] = useState([]);
-    const [cols, setCols] = useState([]);
+    const [tasks, setTasks] = useState(ts);
+    const [cols, setCols] = useState(cs);
 
     const [taskDragged, setTaskDragged] = useState(null);
 

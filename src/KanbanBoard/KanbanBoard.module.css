@@ -37,6 +37,14 @@
     min-width: 216px;
 }
 
+.columnHeader {
+    display: flex;
+    align-self: flex-start;
+    align-items: center;
+    justify-content: space-between;
+    align-self: stretch;
+}
+
 .main {
     position: relative;
     display: flex;

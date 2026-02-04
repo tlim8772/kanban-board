@@ -1,6 +1,7 @@
 import { useContext, useState, useRef, useEffect } from 'react';
 import styles from './KanbanBoard.module.css';
 import { KanbanContext, useKanbanBoard } from './useKanbanBoard';
+import DraggableLogo from '../assets/draggable.svg?react';
 
 function Card({ task }) {
   const { taskDragged, taskDragStart, taskDragEnd, taskDragEnter, taskDragLeave } = useContext(KanbanContext);
@@ -33,7 +34,7 @@ function PlaceHolderCard({ task }) {
 }
 
 function Col({ col, tasks }) {
-  const { addTask, colTaskDragOver, colTaskDragLeave } = useContext(KanbanContext);
+  const { addTask, colTaskDragOver } = useContext(KanbanContext);
   const [input, setInput] = useState('');
   const dialogRef = useRef();
   const ref = useRef();
@@ -45,9 +46,15 @@ function Col({ col, tasks }) {
         className={styles.column}
         onDragOver={colTaskDragOver(col, ref.current)}
       >
-        <div style={{marginBottom: '12px', cursor: 'grab'}}>
-          {col.text}&nbsp;
-          <button onClick={() => dialogRef.current?.showModal()}>+</button>
+        <div className={styles.columnHeader}>
+          <DraggableLogo 
+            style={{height: '32px', width: '32px', cursor: 'grab'}}
+            draggable='true'
+          />
+          <div>
+            {col.text}&nbsp;
+            <button onClick={() => dialogRef.current?.showModal()}>+</button>
+          </div>
         </div>
         {tasks.map(t => {
           return (t.isPlaceholder) ? <PlaceHolderCard key={t.id} task={t} /> : <Card key={t.id} task={t} />
