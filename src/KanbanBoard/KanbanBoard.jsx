@@ -132,7 +132,6 @@ export function KanbanBoard() {
             /> 
           )}
         </div>
-        
       </div>
       <dialog ref={dialogRef} closedby='any'>
         <form

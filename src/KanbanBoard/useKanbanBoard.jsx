@@ -21,11 +21,11 @@ function makeColPlaceholder() {
   }
 }
 
-const cs = Array(4).fill(1).map((_, i) => { return {id: genId(), text: `col${i}`, isPlaceholder: false }});
+const cs = Array(8).fill(1).map((_, i) => { return {id: genId(), text: `col${i}`, isPlaceholder: false }});
 const ts = Array(16).fill(1).map((_, i) => {
   return {
     id: genId(),
-    colId: cs[Math.floor(Math.random() * 4)].id,
+    colId: cs[Math.floor(Math.random() * 8)].id,
     text: `task${i}`,
     isPlaceholder: false,
   }
@@ -81,17 +81,20 @@ export function useKanbanBoard() {
       return (ev) => {
         if (!taskDragged || task.isPlaceholder || task.id === taskDragged?.id) return;
         
+        // to clean up spurious firing of dragEnter which leads to >1 placeholder.
+        const newTasks = tasks.filter(t => !t.isPlaceholder);
+        
         // when task is right below the dragged task don't do anything because it won't change anything.
-        const myTasks = tasks.filter(t => t.colId === task.colId);
+        const myTasks = newTasks.filter(t => t.colId === task.colId);
         const myIdx = myTasks.findIndex(t => t.id === task.id);
         const taskDraggedIdx = myTasks.findIndex(t => t.id === taskDragged?.id);
         if (taskDraggedIdx != -1 && taskDraggedIdx + 1 === myIdx) return;
 
-        const idx = tasks.findIndex(t => t.id === task.id);
+        const idx = newTasks.findIndex(t => t.id === task.id);
         setTasks([
-          ...tasks.slice(0, idx),
+          ...newTasks.slice(0, idx),
           makePlaceholder(task.colId),
-          ...tasks.slice(idx)
+          ...newTasks.slice(idx)
         ]);
       }
     }
@@ -158,6 +161,7 @@ export function useKanbanBoard() {
       return (ev) => {
         if (!colDragged || col.isPlaceholder || col.id === colDragged?.id) return;
         if (!colRef.current) return;
+        
         // this also fires when we drag into the child element.
         // so we remove all placeholder columns.
         const newCols = cols.filter(c => !c.isPlaceholder);
