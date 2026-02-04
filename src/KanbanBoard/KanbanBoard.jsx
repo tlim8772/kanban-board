@@ -21,7 +21,7 @@ function Card({ task }) {
   )
 }
 
-function PlaceHolderCard({ task }) {
+function PlaceholderCard({ task }) {
   const { taskDragLeave, taskDragDrop } = useContext(KanbanContext);
   return (
     <div 
@@ -34,7 +34,14 @@ function PlaceHolderCard({ task }) {
 }
 
 function Col({ col, tasks }) {
-  const { addTask, colTaskDragOver } = useContext(KanbanContext);
+  const { 
+    addTask, 
+    colTaskDragOver, 
+    colDragStart, 
+    colDragEnd, 
+    colDragEnter 
+  } = useContext(KanbanContext);
+  
   const [input, setInput] = useState('');
   const dialogRef = useRef();
   const ref = useRef();
@@ -44,20 +51,24 @@ function Col({ col, tasks }) {
       <div 
         ref={ref}
         className={styles.column}
-        onDragOver={colTaskDragOver(col, ref.current)}
+        onDragOver={colTaskDragOver(col, ref)}
       >
         <div className={styles.columnHeader}>
-          <DraggableLogo 
-            style={{height: '32px', width: '32px', cursor: 'grab'}}
-            draggable='true'
-          />
+            <div
+              draggable='true'
+              onDragStart={colDragStart(col, ref)} 
+              onDragEnd={colDragEnd(col)}
+              onDragEnter={colDragEnter(col)}
+            >
+              <DraggableLogo style={{height: '32px', width: '32px', cursor: 'grab'}} />
+            </div>
           <div>
             {col.text}&nbsp;
             <button onClick={() => dialogRef.current?.showModal()}>+</button>
           </div>
         </div>
         {tasks.map(t => {
-          return (t.isPlaceholder) ? <PlaceHolderCard key={t.id} task={t} /> : <Card key={t.id} task={t} />
+          return (t.isPlaceholder) ? <PlaceholderCard key={t.id} task={t} /> : <Card key={t.id} task={t} />
         })}
       </div>
       <dialog ref={dialogRef} closedby='any'>
@@ -78,6 +89,12 @@ function Col({ col, tasks }) {
   )
 }
 
+function PlaceholderCol({ col }) {
+  return (
+    <div className={styles.column}></div>
+  )
+}
+
 export function KanbanBoard() {
   const kanbanContext = useKanbanBoard();
   const { tasks, cols, addCol } = kanbanContext;
@@ -88,17 +105,22 @@ export function KanbanBoard() {
   return (
     <KanbanContext value={kanbanContext}>
       <div className={styles.main}>
-        <h3>Kanban Board</h3>
+        <div style={{display: 'flex', alignItems: 'center', gap: '12px'}}>
+          <h3>Kanban Board</h3>
+          <button onClick={() => dialogRef.current?.showModal()}>+</button>
+        </div>
         <div className={styles.board}>
-          {cols.map(col => 
+          {cols.map(col => (!col.isPlaceholder) ?
             <Col 
               key={col.id} 
               col={col}
               tasks={tasks.filter(t => t.colId === col.id)} 
-            />
+            /> 
+            :
+            <PlaceholderCol key={col.id} />
           )}
         </div>
-        <button className={styles.addColBtn} onClick={() => dialogRef.current?.showModal()}>+</button>
+        
       </div>
       <dialog ref={dialogRef} closedby='any'>
         <form
