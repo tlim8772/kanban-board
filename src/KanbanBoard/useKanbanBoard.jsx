@@ -122,6 +122,7 @@ export function useKanbanBoard() {
 
     function colTaskDragOver(col, colRef) {
       return (ev) => {
+        // cannot fire when when drag a column (hence taskDragged is null)
         if (taskDragged) {
            const myTasks = tasks.filter(t => t.colId === col.id);
           if (myTasks.length > 0 && myTasks.at(-1).id === taskDragged?.id) return;
@@ -151,24 +152,38 @@ export function useKanbanBoard() {
       }
     }
 
-    function colDragEnter(col) {
+    // for this, we put placeholder on left if in left half
+    // placeholder on right if in right half.
+    function colDragEnter(col, colRef) {
       return (ev) => {
         if (!colDragged || col.isPlaceholder || col.id === colDragged?.id) return;
-        
+        if (!colRef.current) return;
         // this also fires when we drag into the child element.
         // so we remove all placeholder columns.
         const newCols = cols.filter(c => !c.isPlaceholder);
-        
-        // when col you dragged into is right before
+
+        // check whether I am in the left or right
+        const { left, right } = colRef.current.getBoundingClientRect();
+        const mid = (left + right) / 2;
+        const dir = (ev.clientX) <= mid;
+
         const myIdx = newCols.findIndex(c => c.id === col.id);
         const draggedIdx = newCols.findIndex(c => c.id === colDragged.id);
-        if (draggedIdx != -1 && draggedIdx + 1 === myIdx) return;
-       
-        setCols([
-          ...newCols.slice(0, myIdx), 
-          makeColPlaceholder(), 
-          ...newCols.slice(myIdx),
-        ]);
+        if (dir == 1) {
+          if (draggedIdx != -1 && draggedIdx + 1 === myIdx) return;
+          setCols([
+            ...newCols.slice(0, myIdx), 
+            makeColPlaceholder(), 
+            ...newCols.slice(myIdx),
+          ]);
+        } else {
+          if (draggedIdx != -1 && draggedIdx - 1 === myIdx) return;
+          setCols([
+            ...newCols.slice(0, myIdx + 1),
+            makeColPlaceholder(),
+            ...newCols.slice(myIdx + 1)
+          ]);
+        }  
       }
     }
 
@@ -176,6 +191,20 @@ export function useKanbanBoard() {
       return (ev) => {
         if (!col.isPlaceholder) return;
         setCols(cols.filter(c => !c.isPlaceholder));
+      }
+    }
+
+    function colDragDrop(col) {
+      return (ev) => {
+        if (!col.isPlaceholder) return;
+        const newCols = cols.filter(c => c.id !== colDragged?.id);
+        col.id = colDragged.id;
+        col.text = colDragged.text;
+        col.isPlaceholder = false;
+
+        setColDragged(null);
+        setCols(newCols);
+        
       }
     }
 
@@ -199,5 +228,6 @@ export function useKanbanBoard() {
       colDragEnd,
       colDragEnter,
       colDragLeave,
+      colDragDrop,
     }
 }

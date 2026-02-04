@@ -57,7 +57,7 @@ function Col({ col, tasks }) {
         ref={ref}
         className={`${styles.column} ${isDragged && styles.isDragged}`}
         onDragOver={colTaskDragOver(col, ref)}
-        onDragEnter={colDragEnter(col)}
+        onDragEnter={colDragEnter(col, ref)}
       >
         <div className={styles.columnHeader}>
             <div
@@ -95,12 +95,13 @@ function Col({ col, tasks }) {
 }
 
 function PlaceholderCol({ col }) {
-  const { colDragLeave } = useContext(KanbanContext);
+  const { colDragLeave, colDragDrop } = useContext(KanbanContext);
   return (
     <div 
       className={styles.placeholderCol}
       onDragOver={ev => ev.preventDefault()}
       onDragLeave={colDragLeave(col)}
+      onDrop={colDragDrop(col)}
     >
       &nbsp;
     </div>
