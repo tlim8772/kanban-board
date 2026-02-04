@@ -29,19 +29,24 @@ function PlaceholderCard({ task }) {
       onDragLeave={taskDragLeave(task)}
       onDragOver={e => e.preventDefault()}
       onDrop={taskDragDrop(task)}
-    >&nbsp;</div>
+    >
+      &nbsp;
+    </div>
   )
 }
 
 function Col({ col, tasks }) {
   const { 
     addTask, 
+
+    colDragged,
     colTaskDragOver, 
     colDragStart, 
     colDragEnd, 
     colDragEnter 
   } = useContext(KanbanContext);
   
+  const isDragged = colDragged?.id === col.id;
   const [input, setInput] = useState('');
   const dialogRef = useRef();
   const ref = useRef();
@@ -50,15 +55,15 @@ function Col({ col, tasks }) {
     <>
       <div 
         ref={ref}
-        className={styles.column}
+        className={`${styles.column} ${isDragged && styles.isDragged}`}
         onDragOver={colTaskDragOver(col, ref)}
+        onDragEnter={colDragEnter(col)}
       >
         <div className={styles.columnHeader}>
             <div
               draggable='true'
               onDragStart={colDragStart(col, ref)} 
               onDragEnd={colDragEnd(col)}
-              onDragEnter={colDragEnter(col)}
             >
               <DraggableLogo style={{height: '32px', width: '32px', cursor: 'grab'}} />
             </div>
@@ -90,8 +95,15 @@ function Col({ col, tasks }) {
 }
 
 function PlaceholderCol({ col }) {
+  const { colDragLeave } = useContext(KanbanContext);
   return (
-    <div className={styles.column}></div>
+    <div 
+      className={styles.placeholderCol}
+      onDragOver={ev => ev.preventDefault()}
+      onDragLeave={colDragLeave(col)}
+    >
+      &nbsp;
+    </div>
   )
 }
 
@@ -110,14 +122,13 @@ export function KanbanBoard() {
           <button onClick={() => dialogRef.current?.showModal()}>+</button>
         </div>
         <div className={styles.board}>
-          {cols.map(col => (!col.isPlaceholder) ?
+          {cols.map(col => (col.isPlaceholder) ?
+            <PlaceholderCol key={col.id} col={col} /> :
             <Col 
               key={col.id} 
               col={col}
               tasks={tasks.filter(t => t.colId === col.id)} 
             /> 
-            :
-            <PlaceholderCol key={col.id} />
           )}
         </div>
         

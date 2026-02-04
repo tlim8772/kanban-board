@@ -21,7 +21,7 @@ function makeColPlaceholder() {
   }
 }
 
-const cs = Array(4).fill(1).map((_, i) => { return {id: genId(), text: `col${i}`}});
+const cs = Array(4).fill(1).map((_, i) => { return {id: genId(), text: `col${i}`, isPlaceholder: false }});
 const ts = Array(16).fill(1).map((_, i) => {
   return {
     id: genId(),
@@ -155,12 +155,27 @@ export function useKanbanBoard() {
       return (ev) => {
         if (!colDragged || col.isPlaceholder || col.id === colDragged?.id) return;
         
+        // this also fires when we drag into the child element.
+        // so we remove all placeholder columns.
+        const newCols = cols.filter(c => !c.isPlaceholder);
+        
         // when col you dragged into is right before
-        const myIdx = cols.findIndex(c => c.id === col.id);
-        const draggedIdx = cols.findIndex(c => c.id === colDragged.id);
+        const myIdx = newCols.findIndex(c => c.id === col.id);
+        const draggedIdx = newCols.findIndex(c => c.id === colDragged.id);
         if (draggedIdx != -1 && draggedIdx + 1 === myIdx) return;
+       
+        setCols([
+          ...newCols.slice(0, myIdx), 
+          makeColPlaceholder(), 
+          ...newCols.slice(myIdx),
+        ]);
+      }
+    }
 
-        console.log('col drag enter');
+    function colDragLeave(col) {
+      return (ev) => {
+        if (!col.isPlaceholder) return;
+        setCols(cols.filter(c => !c.isPlaceholder));
       }
     }
 
@@ -179,8 +194,10 @@ export function useKanbanBoard() {
       colTaskDragOver,
       taskDragDrop,
 
+      colDragged,
       colDragStart,
       colDragEnd,
       colDragEnter,
+      colDragLeave,
     }
 }
